@@ -17,7 +17,7 @@ require(['vs/editor/editor.main'], async function () {
         formatOnType: true
     });
 
-    const resizer = new PanelResizer();
+    const resizer = new PanelResizer(snippetManager);
     window.editor = editor;
 
     snippetManager.setEditor(editor);

@@ -123,7 +123,7 @@ export class SnippetManager {
                 } catch (e) {
                     console.error('Invalid JSON:', e);
                 }
-            }, 300);
+            }, 1000);
         });
 
         // Load first snippet if available
@@ -135,6 +135,8 @@ export class SnippetManager {
     async updateVisualization(spec) {
         try {
             const parsedSpec = typeof spec === 'string' ? JSON.parse(spec) : spec;
+            parsedSpec.width = parsedSpec.width? parsedSpec.width : 'container';
+            parsedSpec.height = parsedSpec.height? parsedSpec.height : 'container';
             await vegaEmbed('#vis', parsedSpec, {
                 actions: true, // This adds the export/view source buttons
                 theme: 'light'

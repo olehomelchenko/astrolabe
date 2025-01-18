@@ -1,5 +1,6 @@
 export class PanelResizer {
-    constructor() {
+    constructor(snippetManager) {
+        this.snippetManager = snippetManager;
         this.handleDragStart = this.handleDragStart.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
         this.handleDragEnd = this.handleDragEnd.bind(this);
@@ -103,6 +104,13 @@ export class PanelResizer {
         // Trigger Monaco editor resize
         if (window.editor) {
             window.editor.layout();
+        }
+
+        // Update visualization after resize is complete
+        if (this.snippetManager && typeof this.snippetManager.updateVisualization === 'function') {
+            // Get the current editor value and update visualization
+            const editorValue = this.snippetManager.editor.getValue();
+            this.snippetManager.updateVisualization(editorValue);
         }
     }
 
