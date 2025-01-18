@@ -14,6 +14,17 @@ export class PanelResizer {
             document.documentElement.style.setProperty('--snippet-width', layout.snippetWidth);
             document.documentElement.style.setProperty('--editor-width', layout.editorWidth);
             document.documentElement.style.setProperty('--preview-width', layout.previewWidth);
+            this.normalizePanelWidths();
+        } else {
+            const defaultLayout = {
+                snippetWidth: '0.25fr',
+                editorWidth: '0.25fr',
+                previewWidth: '0.5fr'
+            };
+            localStorage.setItem('panelLayout', JSON.stringify(defaultLayout));
+            document.documentElement.style.setProperty('--snippet-width', defaultLayout.snippetWidth);
+            document.documentElement.style.setProperty('--editor-width', defaultLayout.editorWidth);
+            document.documentElement.style.setProperty('--preview-width', defaultLayout.previewWidth);
         }
     }
 
@@ -59,17 +70,24 @@ export class PanelResizer {
         const containerWidth = document.querySelector('.container').getBoundingClientRect().width;
 
         // Calculate new widths as fractions
-        const newLeftWidth = `${(this.leftWidth + dx) / containerWidth}fr`;
-        const newRightWidth = `${(this.rightWidth - dx) / containerWidth}fr`;
+        let leftFr = (this.leftWidth + dx) / containerWidth;
+        let rightFr = (this.rightWidth - dx) / containerWidth;
+
+        // Ensure minimum width of 0.1fr for each panel
+        const minFr = 0.1;
+        leftFr = Math.max(minFr, leftFr);
+        rightFr = Math.max(minFr, rightFr);
 
         // Apply new widths based on which handle is being dragged
         if (this.activeHandle === 0) {
-            document.documentElement.style.setProperty('--snippet-width', newLeftWidth);
-            document.documentElement.style.setProperty('--editor-width', newRightWidth);
+            document.documentElement.style.setProperty('--snippet-width', `${leftFr}fr`);
+            document.documentElement.style.setProperty('--editor-width', `${rightFr}fr`);
         } else {
-            document.documentElement.style.setProperty('--editor-width', newLeftWidth);
-            document.documentElement.style.setProperty('--preview-width', newRightWidth);
+            document.documentElement.style.setProperty('--editor-width', `${leftFr}fr`);
+            document.documentElement.style.setProperty('--preview-width', `${rightFr}fr`);
         }
+        
+        this.normalizePanelWidths();
     }
 
     handleDragEnd() {
@@ -85,6 +103,20 @@ export class PanelResizer {
         // Trigger Monaco editor resize
         if (window.editor) {
             window.editor.layout();
+        }
+    }
+
+    normalizePanelWidths() {
+        const snippetWidth = parseFloat(document.documentElement.style.getPropertyValue('--snippet-width'));
+        const editorWidth = parseFloat(document.documentElement.style.getPropertyValue('--editor-width'));
+        const previewWidth = parseFloat(document.documentElement.style.getPropertyValue('--preview-width'));
+        
+        const total = snippetWidth + editorWidth + previewWidth;
+        if (total !== 1) {
+            const factor = 1 / total;
+            document.documentElement.style.setProperty('--snippet-width', `${snippetWidth * factor}fr`);
+            document.documentElement.style.setProperty('--editor-width', `${editorWidth * factor}fr`);
+            document.documentElement.style.setProperty('--preview-width', `${previewWidth * factor}fr`);
         }
     }
 }
