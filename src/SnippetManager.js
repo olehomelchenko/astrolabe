@@ -53,9 +53,13 @@ export class SnippetManager {
     }
 
     createNewSnippet() {
-        const name = prompt('Enter snippet name:', 'New Snippet');
-        if (!name) return;
-
+        const existingNames = this.snippets
+            .filter(s => s.name.startsWith('Snippet #'))
+            .map(s => parseInt(s.name.replace('Snippet #', '')))
+            .filter(n => !isNaN(n));
+        
+        const nextNumber = existingNames.length > 0 ? Math.max(...existingNames) + 1 : 1;
+        const name = `Snippet #${nextNumber}`;
         const id = 'snippet-' + Date.now();
         const newSnippet = {
             id,
