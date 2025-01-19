@@ -102,15 +102,16 @@ export class PanelResizer {
         document.removeEventListener('mouseup', this.handleDragEnd);
 
         // Trigger Monaco editor resize
-        if (window.editor) {
-            window.editor.layout();
+        if (this.snippetManager.editorManager.editor) {
+            this.snippetManager.editorManager.editor.layout();
         }
 
         // Update visualization after resize is complete
-        if (this.snippetManager && typeof this.snippetManager.updateVisualization === 'function') {
-            // Get the current editor value and update visualization
-            const editorValue = this.snippetManager.editor.getValue();
-            this.snippetManager.updateVisualization(editorValue);
+        try {
+            const editorValue = this.snippetManager.editorManager.getValue();
+            this.snippetManager.visualizationManager.updateVisualization(editorValue);
+        } catch (e) {
+            console.error('Error updating visualization after resize:', e);
         }
     }
 
