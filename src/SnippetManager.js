@@ -43,12 +43,9 @@ export class SnippetManager {
                 snippet.content;
             
             this.editorManager.setValue(content);
-            // Set hasUnsavedChanges to true if we're viewing a draft version
             this.hasUnsavedChanges = this.isDraftVersion;
             this.updateReadOnlyState();
-            this.uiManager.updateSaveButton(this.hasUnsavedChanges);
-            this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, hasChanges);
-            this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
+            this.updateUI();
             this.visualizationManager.updateVisualization(content);
         }
     }
@@ -73,7 +70,7 @@ export class SnippetManager {
         };
 
         this.snippets.push(newSnippet);
-        this.storageManager.saveSnippets(this.snippets);
+        this.saveSnippetsAndUpdateUI();
         this.loadSnippet(id);
     }
 
@@ -89,9 +86,7 @@ export class SnippetManager {
                 if (JSON.stringify(content) !== JSON.stringify(currentSnippet.content)) {
                     this.snippets[snippetIndex].draft = content;
                     this.isDraftVersion = true;
-                    this.storageManager.saveSnippets(this.snippets);
-                    this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
-                    this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, this.hasDraftChanges(this.currentSnippetId));
+                    this.saveSnippetsAndUpdateUI();
                     this.visualizationManager.updateVisualization(content);
                 }
             }
@@ -109,13 +104,10 @@ export class SnippetManager {
 
             if (snippetIndex !== -1) {
                 this.snippets[snippetIndex].content = content;
-                delete this.snippets[snippetIndex].draft; // Remove draft after saving
-                this.storageManager.saveSnippets(this.snippets);
+                delete this.snippets[snippetIndex].draft;
                 this.hasUnsavedChanges = false;
                 this.isDraftVersion = false;
-                this.uiManager.updateSaveButton(this.hasUnsavedChanges);
-                this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, this.hasDraftChanges(this.currentSnippetId));
-                this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
+                this.saveSnippetsAndUpdateUI();
             }
         } catch (e) {
             alert('Invalid JSON in editor');
@@ -126,22 +118,7 @@ export class SnippetManager {
         this.readOnlyMode = false;
         this.isDraftVersion = true;
         delete this.snippets.find(s => s.id === this.currentSnippetId).draft;
-        this.storageManager.saveSnippets(this.snippets);
-        this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, this.hasDraftChanges(this.currentSnippetId));
-        this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
-    }
-
-    // Remove these methods as they're now in UIManager
-    updateSaveButton() {
-        this.uiManager.updateSaveButton(this.hasUnsavedChanges);
-    }
-
-    updateVersionSwitch() {
-        this.uiManager.updateVersionSwitch(
-            this.currentSnippetId,
-            this.isDraftVersion,
-            this.hasDraftChanges(this.currentSnippetId)
-        );
+        this.saveSnippetsAndUpdateUI();
     }
 
     updateReadOnlyState() {
@@ -153,7 +130,7 @@ export class SnippetManager {
     deleteSnippet(id) {
         if (confirm('Are you sure you want to delete this snippet?')) {
             this.snippets = this.snippets.filter(s => s.id !== id);
-            this.storageManager.saveSnippets(this.snippets);
+            this.saveSnippetsAndUpdateUI();
             
             if (this.currentSnippetId === id) {
                 this.currentSnippetId = null;
@@ -163,8 +140,6 @@ export class SnippetManager {
                     this.editorManager.setValue('');
                 }
             }
-            
-            this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
         }
     }
 
@@ -175,8 +150,18 @@ export class SnippetManager {
         const newName = prompt('Enter new name:', snippet.name);
         if (newName && newName.trim() !== '') {
             snippet.name = newName.trim();
-            this.storageManager.saveSnippets(this.snippets);
-            this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
+            this.saveSnippetsAndUpdateUI();
         }
+    }
+
+    saveSnippetsAndUpdateUI() {
+        this.storageManager.saveSnippets(this.snippets);
+        this.updateUI();
+    }
+
+    updateUI() {
+        this.uiManager.updateSaveButton(this.hasUnsavedChanges);
+        this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, this.hasDraftChanges(this.currentSnippetId));
+        this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
     }
 }
