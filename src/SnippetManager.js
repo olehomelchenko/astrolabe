@@ -2,8 +2,19 @@ export class SnippetManager {
     constructor() {
         this.currentSnippetId = null;
         this.hasUnsavedChanges = false;
+        this.isDraftVersion = false;
+        this.drafts = new Map(); // Store draft versions
+        this.readOnlyMode = false;
         this.loadSnippets();
+        this.loadDrafts();
         this.setupUI();
+    }
+
+    hasDraftChanges(id) {
+        if (!this.drafts.has(id)) return false;
+        const snippet = this.snippets.find(s => s.id === id);
+        const draft = this.drafts.get(id);
+        return JSON.stringify(snippet.content) !== JSON.stringify(draft);
     }
 
     loadSnippets() {
@@ -17,8 +28,21 @@ export class SnippetManager {
         }
     }
 
+    loadDrafts() {
+        const stored = localStorage.getItem('vegaDrafts');
+        if (stored) {
+            const draftsObj = JSON.parse(stored);
+            this.drafts = new Map(Object.entries(draftsObj));
+        }
+    }
+
     saveToStorage() {
         localStorage.setItem('vegaSnippets', JSON.stringify(this.snippets));
+    }
+
+    saveDraftsToStorage() {
+        const draftsObj = Object.fromEntries(this.drafts);
+        localStorage.setItem('vegaDrafts', JSON.stringify(draftsObj));
     }
 
     renderSnippetList() {
@@ -28,25 +52,32 @@ export class SnippetManager {
         this.snippets.forEach(snippet => {
             const div = document.createElement('div');
             div.className = `snippet-item ${snippet.id === this.currentSnippetId ? 'active' : ''}`;
-            div.textContent = snippet.name;
+            const hasChanges = this.hasDraftChanges(snippet.id);
+            const indicator = hasChanges ? '🟡' : '🟢';
+            div.textContent = `${indicator} ${snippet.name}`;
             div.onclick = () => this.loadSnippet(snippet.id);
             container.appendChild(div);
         });
     }
 
-    loadSnippet(id) {
-        if (this.hasUnsavedChanges) {
-            if (!confirm('You have unsaved changes. Do you want to discard them?')) {
-                return;
-            }
-        }
-
+    loadSnippet(id, forceDraft = null) {
         const snippet = this.snippets.find(s => s.id === id);
         if (snippet) {
             this.currentSnippetId = id;
-            this.editor.setValue(JSON.stringify(snippet.content, null, 2));
+            const hasChanges = this.hasDraftChanges(id);
+            
+            // Default to draft if available, unless explicitly specified
+            this.isDraftVersion = forceDraft !== null ? forceDraft : hasChanges;
+            
+            const content = this.isDraftVersion && this.drafts.has(id) ? 
+                this.drafts.get(id) : 
+                snippet.content;
+            
+            this.editor.setValue(JSON.stringify(content, null, 2));
             this.hasUnsavedChanges = false;
+            this.updateReadOnlyState();
             this.updateSaveButton();
+            this.updateVersionSwitch();
             this.renderSnippetList();
         }
     }
@@ -71,6 +102,26 @@ export class SnippetManager {
         this.loadSnippet(id);
     }
 
+    saveDraft() {
+        if (!this.currentSnippetId) return;
+
+        try {
+            const content = JSON.parse(this.editor.getValue());
+            const currentSnippet = this.snippets.find(s => s.id === this.currentSnippetId);
+            
+            // Only save draft if content is different from saved version
+            if (JSON.stringify(content) !== JSON.stringify(currentSnippet.content)) {
+                this.drafts.set(this.currentSnippetId, content);
+                this.isDraftVersion = true;
+                this.saveDraftsToStorage();
+                this.renderSnippetList();
+                this.updateVersionSwitch();
+            }
+        } catch (e) {
+            console.error('Invalid JSON in editor');
+        }
+    }
+
     saveCurrentSnippet() {
         if (!this.currentSnippetId) return;
 
@@ -80,9 +131,14 @@ export class SnippetManager {
 
             if (snippetIndex !== -1) {
                 this.snippets[snippetIndex].content = content;
+                this.drafts.delete(this.currentSnippetId); // Remove draft after saving
+                this.saveDraftsToStorage();
                 this.saveToStorage();
                 this.hasUnsavedChanges = false;
+                this.isDraftVersion = false;
                 this.updateSaveButton();
+                this.updateVersionSwitch();
+                this.renderSnippetList();
             }
         } catch (e) {
             alert('Invalid JSON in editor');
@@ -94,12 +150,31 @@ export class SnippetManager {
         saveButton.disabled = !this.hasUnsavedChanges;
     }
 
+    updateVersionSwitch() {
+        const versionSwitch = document.getElementById('version-switch');
+        if (!versionSwitch) return;
+
+        const hasChanges = this.hasDraftChanges(this.currentSnippetId);
+        versionSwitch.style.display = hasChanges ? 'block' : 'none';
+        
+        const buttonText = this.isDraftVersion ? 
+            'View Saved Version (Read-only)' : 
+            'Switch to Draft Version (Editable)';
+        versionSwitch.textContent = buttonText;
+    }
+
     setupUI() {
         // New snippet button
         document.getElementById('new-snippet').onclick = () => this.createNewSnippet();
 
         // Save button
         document.getElementById('save-snippet').onclick = () => this.saveCurrentSnippet();
+
+        // Version switch button
+        const versionSwitch = document.getElementById('version-switch');
+        versionSwitch.onclick = () => {
+            this.loadSnippet(this.currentSnippetId, !this.isDraftVersion);
+        };
 
         // Initial render
         this.renderSnippetList();
@@ -108,15 +183,33 @@ export class SnippetManager {
     setEditor(editor) {
         this.editor = editor;
 
-        // Setup change tracking and visualization update
         let timeoutId = null;
-        editor.onDidChangeModelContent(() => {
+        editor.onDidChangeModelContent((e) => {
+            // Only show warning if we're in read-only mode AND this is a user edit
+            // (not a programmatic change from loadSnippet)
+            if (this.readOnlyMode && e.isUndoRedo === false) {
+                if (confirm('Editing the saved version will overwrite your draft. Continue?')) {
+                    this.readOnlyMode = false;
+                    this.isDraftVersion = true;
+                    this.drafts.delete(this.currentSnippetId);
+                    this.saveDraftsToStorage();
+                    this.updateVersionSwitch();
+                    this.renderSnippetList();
+                } else {
+                    // Revert the change
+                    const snippet = this.snippets.find(s => s.id === this.currentSnippetId);
+                    this.editor.setValue(JSON.stringify(snippet.content, null, 2));
+                    return;
+                }
+            }
+
             this.hasUnsavedChanges = true;
             this.updateSaveButton();
 
-            // Debounce visualization updates
+            // Auto-save to draft
             if (timeoutId) clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
+                this.saveDraft();
                 try {
                     const value = editor.getValue();
                     this.updateVisualization(value);
@@ -130,6 +223,12 @@ export class SnippetManager {
         if (this.snippets.length > 0) {
             this.loadSnippet(this.snippets[0].id);
         }
+    }
+
+    updateReadOnlyState() {
+        const hasChanges = this.hasDraftChanges(this.currentSnippetId);
+        this.readOnlyMode = hasChanges && !this.isDraftVersion;
+        this.editor.updateOptions({ readOnly: this.readOnlyMode });
     }
 
     async updateVisualization(spec) {

@@ -63,6 +63,14 @@
     cursor: not-allowed;
 }
 
+.button.secondary {
+    background: #607D8B;
+}
+
+.button.secondary:hover {
+    background: #546E7A;
+}
+
 .snippet-list {
     padding: 1rem;
     flex-grow: 1;
@@ -93,4 +101,10 @@
 
 .preview-panel>*:not(.panel-header) {
     padding: 1rem;
+}
+
+.editor-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }

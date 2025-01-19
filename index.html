@@ -28,7 +28,10 @@
         <div class="panel">
             <div class="panel-header">
                 <h2>Editor</h2>
-                <button class="button" id="save-snippet" disabled>Save Changes</button>
+                <div class="editor-controls">
+                    <button class="button secondary" id="version-switch" style="display: none">View Saved Version</button>
+                    <button class="button" id="save-snippet" disabled>Save Changes</button>
+                </div>
             </div>
             <div id="monaco-editor"></div>
         </div>
