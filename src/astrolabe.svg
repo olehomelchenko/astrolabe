@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg 
+    width="512" 
+    height="512" 
+    viewBox="0 0 512 512" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Outer Circle -->
+  <circle 
+    cx="256" 
+    cy="256" 
+    r="200" 
+    stroke="#000000" 
+    stroke-width="16" 
+    fill="none"
+  />
+
+  <!-- Inner Circle -->
+  <circle 
+    cx="256" 
+    cy="256" 
+    r="130" 
+    stroke="#000000" 
+    stroke-width="8" 
+    fill="none"
+  />
+
+  <!-- Stylized Rotating Arm/Pincer -->
+  <g transform="translate(256,256)">
+    <!-- Horizontal bar -->
+    <line 
+      x1="-80" y1="0" x2="80" y2="0" 
+      stroke="#000000" 
+      stroke-width="8"
+    />
+    <!-- Outer arc on one side -->
+    <path 
+      d="M 80 0 A 80 80 0 0 1 0 80" 
+      stroke="#000000" 
+      stroke-width="8" 
+      fill="none"
+    />
+    <!-- Outer arc on the other side -->
+    <path 
+      d="M -80 0 A 80 80 0 0 0 0 80" 
+      stroke="#000000" 
+      stroke-width="8" 
+      fill="none"
+    />
+    <!-- Center pivot circle -->
+    <circle 
+      cx="0" 
+      cy="0" 
+      r="8" 
+      fill="#000000"
+    />
+  </g>
+
+  <!-- Decorative radial lines -->
+  <g stroke="#000000" stroke-width="4">
+    <line x1="256" y1="56"  x2="256" y2="105"/>
+    <line x1="456" y1="256" x2="407" y2="256"/>
+    <line x1="256" y1="456" x2="256" y2="407"/>
+    <line x1="56"  y1="256" x2="105" y2="256"/>
+  </g>
+</svg>
