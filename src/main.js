@@ -40,30 +40,5 @@ require(['vs/editor/editor.main'], async function () {
 
     const resizer = new PanelResizer(snippetManager);
     window.editor = editor;
-
     snippetManager.setEditor(editor);
-
-    document.getElementById('export-snippets').addEventListener('click', () => {
-        snippetManager.storageManager.exportSnippets();
-    });
-
-    document.getElementById('import-snippets').addEventListener('click', () => {
-        document.getElementById('import-file').click();
-    });
-
-    document.getElementById('import-file').addEventListener('change', async (e) => {
-        if (e.target.files.length > 0) {
-            try {
-                const snippets = await snippetManager.storageManager.importSnippets(e.target.files[0]);
-                snippetManager.snippets = snippets;
-                snippetManager.uiManager.renderSnippetList(snippets, snippetManager.currentSnippetId);
-                if (snippets.length > 0) {
-                    snippetManager.loadSnippet(snippets[0].id);
-                }
-                e.target.value = ''; // Reset file input
-            } catch (err) {
-                alert(err.message);
-            }
-        }
-    });
 });

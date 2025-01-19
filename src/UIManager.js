@@ -10,6 +10,25 @@ export class UIManager {
         document.getElementById('version-switch').onclick = () => {
             this.snippetManager.loadSnippet(this.snippetManager.currentSnippetId, !this.snippetManager.isDraftVersion);
         };
+        document.getElementById('export-snippets').onclick = () => this.snippetManager.storageManager.exportSnippets();
+        document.getElementById('import-snippets').onclick = () => document.getElementById('import-file').click();
+        document.getElementById('import-file').onchange = (e) => this.handleImport(e);
+    }
+
+    async handleImport(e) {
+        if (e.target.files.length > 0) {
+            try {
+                const snippets = await this.snippetManager.storageManager.importSnippets(e.target.files[0]);
+                this.snippetManager.snippets = snippets;
+                this.renderSnippetList(snippets, this.snippetManager.currentSnippetId);
+                if (snippets.length > 0) {
+                    this.snippetManager.loadSnippet(snippets[0].id);
+                }
+                e.target.value = ''; // Reset file input
+            } catch (err) {
+                alert(err.message);
+            }
+        }
     }
 
     renderSnippetList(snippets, currentSnippetId) {
