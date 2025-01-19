@@ -108,3 +108,41 @@
     gap: 0.5rem;
     align-items: center;
 }
+
+.snippet-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.snippet-item span {
+    cursor: pointer;
+}
+
+.snippet-content {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-snippet {
+    opacity: 0.4;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    min-width: 24px;
+}
+
+.delete-snippet:hover {
+    opacity: 1;
+}
+
+.snippet-item:hover .delete-snippet {
+    opacity: 0.8;
+}

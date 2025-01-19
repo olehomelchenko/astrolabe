@@ -149,4 +149,22 @@ export class SnippetManager {
         this.readOnlyMode = hasChanges && !this.isDraftVersion;
         this.editorManager.updateReadOnlyState(this.readOnlyMode);
     }
+
+    deleteSnippet(id) {
+        if (confirm('Are you sure you want to delete this snippet?')) {
+            this.snippets = this.snippets.filter(s => s.id !== id);
+            this.storageManager.saveSnippets(this.snippets);
+            
+            if (this.currentSnippetId === id) {
+                this.currentSnippetId = null;
+                if (this.snippets.length > 0) {
+                    this.loadSnippet(this.snippets[0].id);
+                } else {
+                    this.editorManager.setValue('');
+                }
+            }
+            
+            this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
+        }
+    }
 }

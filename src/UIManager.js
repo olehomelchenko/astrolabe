@@ -19,10 +19,25 @@ export class UIManager {
         snippets.forEach(snippet => {
             const div = document.createElement('div');
             div.className = `snippet-item ${snippet.id === currentSnippetId ? 'active' : ''}`;
+            div.onclick = () => this.snippetManager.loadSnippet(snippet.id);
+            
             const hasChanges = this.snippetManager.hasDraftChanges(snippet.id);
             const indicator = hasChanges ? '🟡' : '🟢';
-            div.textContent = `${indicator} ${snippet.name}`;
-            div.onclick = () => this.snippetManager.loadSnippet(snippet.id);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'snippet-content';
+            contentDiv.textContent = `${indicator} ${snippet.name}`;
+            div.appendChild(contentDiv);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-snippet';
+            deleteButton.innerHTML = '❌';
+            deleteButton.onclick = (e) => {
+                e.stopPropagation();
+                this.snippetManager.deleteSnippet(snippet.id);
+            };
+            div.appendChild(deleteButton);
+            
             container.appendChild(div);
         });
     }
