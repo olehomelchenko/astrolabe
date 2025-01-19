@@ -43,10 +43,11 @@ export class SnippetManager {
                 snippet.content;
             
             this.editorManager.setValue(content);
-            this.hasUnsavedChanges = false;
+            // Set hasUnsavedChanges to true if we're viewing a draft version
+            this.hasUnsavedChanges = this.isDraftVersion;
             this.updateReadOnlyState();
             this.uiManager.updateSaveButton(this.hasUnsavedChanges);
-            this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, this.hasDraftChanges(this.currentSnippetId));
+            this.uiManager.updateVersionSwitch(this.currentSnippetId, this.isDraftVersion, hasChanges);
             this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
             this.visualizationManager.updateVisualization(content);
         }

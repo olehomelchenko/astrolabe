@@ -6,10 +6,13 @@ export class VisualizationManager {
     async updateVisualization(spec) {
         try {
             const parsedSpec = typeof spec === 'string' ? JSON.parse(spec) : spec;
-            parsedSpec.width = parsedSpec.width || 'container';
-            parsedSpec.height = parsedSpec.height || 'container';
+            const displaySpec = {
+                ...parsedSpec,
+                width: parsedSpec.width || 'container',
+                height: parsedSpec.height || 'container'
+            };
             
-            await vegaEmbed(`#${this.containerId}`, parsedSpec, {
+            await vegaEmbed(`#${this.containerId}`, displaySpec, {
                 actions: true,
                 theme: 'light'
             });
