@@ -167,4 +167,16 @@ export class SnippetManager {
             this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
         }
     }
+
+    renameSnippet(id) {
+        const snippet = this.snippets.find(s => s.id === id);
+        if (!snippet) return;
+
+        const newName = prompt('Enter new name:', snippet.name);
+        if (newName && newName.trim() !== '') {
+            snippet.name = newName.trim();
+            this.storageManager.saveSnippets(this.snippets);
+            this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
+        }
+    }
 }

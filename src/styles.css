@@ -146,3 +146,26 @@
 .snippet-item:hover .delete-snippet {
     opacity: 0.8;
 }
+
+.snippet-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.edit-snippet {
+    opacity: 0.4;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    min-width: 24px;
+}
+
+.edit-snippet:hover {
+    opacity: 1;
+}
+
+.snippet-item:hover .edit-snippet {
+    opacity: 0.8;
+}

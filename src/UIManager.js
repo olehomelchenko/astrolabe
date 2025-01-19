@@ -29,6 +29,18 @@ export class UIManager {
             contentDiv.textContent = `${indicator} ${snippet.name}`;
             div.appendChild(contentDiv);
 
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'snippet-buttons';
+
+            const editButton = document.createElement('button');
+            editButton.className = 'edit-snippet';
+            editButton.innerHTML = '✏️';
+            editButton.onclick = (e) => {
+                e.stopPropagation();
+                this.snippetManager.renameSnippet(snippet.id);
+            };
+            buttonsDiv.appendChild(editButton);
+
             const deleteButton = document.createElement('button');
             deleteButton.className = 'delete-snippet';
             deleteButton.innerHTML = '❌';
@@ -36,8 +48,9 @@ export class UIManager {
                 e.stopPropagation();
                 this.snippetManager.deleteSnippet(snippet.id);
             };
-            div.appendChild(deleteButton);
+            buttonsDiv.appendChild(deleteButton);
             
+            div.appendChild(buttonsDiv);
             container.appendChild(div);
         });
     }
