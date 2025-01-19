@@ -66,7 +66,7 @@ export class UIManager {
 
         versionSwitch.style.display = hasDraftChanges ? 'block' : 'none';
         versionSwitch.textContent = isDraftVersion ? 
-            'View Saved Version (Read-only)' : 
-            'Switch to Draft Version (Editable)';
+            'View Saved' : 
+            'View Draft';
     }
 }
