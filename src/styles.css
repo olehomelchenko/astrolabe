@@ -1,3 +1,7 @@
+:root {
+    --ui-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 #vis {
     width: 100%;
     height: 100%;
@@ -8,6 +12,27 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+/* Apply font to UI elements */
+.panel-header,
+.button,
+.snippet-item,
+.snippet-content {
+    font-family: var(--ui-font);
+}
+
+.panel-header h2 {
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.button {
+    font-weight: 500;
+}
+
+.snippet-content {
+    font-size: 0.925rem;
 }
 
 .container {
