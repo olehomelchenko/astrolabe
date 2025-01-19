@@ -1,48 +1,30 @@
+import { defaultSnippets } from './config.js';
+
 export class SnippetManager {
     constructor() {
         this.currentSnippetId = null;
         this.hasUnsavedChanges = false;
         this.isDraftVersion = false;
-        this.drafts = new Map(); // Store draft versions
         this.readOnlyMode = false;
         this.loadSnippets();
-        this.loadDrafts();
         this.setupUI();
     }
 
     hasDraftChanges(id) {
-        if (!this.drafts.has(id)) return false;
         const snippet = this.snippets.find(s => s.id === id);
-        const draft = this.drafts.get(id);
-        return JSON.stringify(snippet.content) !== JSON.stringify(draft);
+        return snippet && snippet.draft !== undefined;
     }
 
     loadSnippets() {
-        // Try to load from localStorage
         const stored = localStorage.getItem('vegaSnippets');
         this.snippets = stored ? JSON.parse(stored) : defaultSnippets;
-
-        // Initialize localStorage if empty
         if (!stored) {
             this.saveToStorage();
         }
     }
 
-    loadDrafts() {
-        const stored = localStorage.getItem('vegaDrafts');
-        if (stored) {
-            const draftsObj = JSON.parse(stored);
-            this.drafts = new Map(Object.entries(draftsObj));
-        }
-    }
-
     saveToStorage() {
         localStorage.setItem('vegaSnippets', JSON.stringify(this.snippets));
-    }
-
-    saveDraftsToStorage() {
-        const draftsObj = Object.fromEntries(this.drafts);
-        localStorage.setItem('vegaDrafts', JSON.stringify(draftsObj));
     }
 
     renderSnippetList() {
@@ -66,11 +48,9 @@ export class SnippetManager {
             this.currentSnippetId = id;
             const hasChanges = this.hasDraftChanges(id);
             
-            // Default to draft if available, unless explicitly specified
             this.isDraftVersion = forceDraft !== null ? forceDraft : hasChanges;
-            
-            const content = this.isDraftVersion && this.drafts.has(id) ? 
-                this.drafts.get(id) : 
+            const content = this.isDraftVersion && snippet.draft ? 
+                snippet.draft : 
                 snippet.content;
             
             this.editor.setValue(JSON.stringify(content, null, 2));
@@ -107,15 +87,17 @@ export class SnippetManager {
 
         try {
             const content = JSON.parse(this.editor.getValue());
-            const currentSnippet = this.snippets.find(s => s.id === this.currentSnippetId);
+            const snippetIndex = this.snippets.findIndex(s => s.id === this.currentSnippetId);
             
-            // Only save draft if content is different from saved version
-            if (JSON.stringify(content) !== JSON.stringify(currentSnippet.content)) {
-                this.drafts.set(this.currentSnippetId, content);
-                this.isDraftVersion = true;
-                this.saveDraftsToStorage();
-                this.renderSnippetList();
-                this.updateVersionSwitch();
+            if (snippetIndex !== -1) {
+                const currentSnippet = this.snippets[snippetIndex];
+                if (JSON.stringify(content) !== JSON.stringify(currentSnippet.content)) {
+                    this.snippets[snippetIndex].draft = content;
+                    this.isDraftVersion = true;
+                    this.saveToStorage();
+                    this.renderSnippetList();
+                    this.updateVersionSwitch();
+                }
             }
         } catch (e) {
             console.error('Invalid JSON in editor');
@@ -131,8 +113,7 @@ export class SnippetManager {
 
             if (snippetIndex !== -1) {
                 this.snippets[snippetIndex].content = content;
-                this.drafts.delete(this.currentSnippetId); // Remove draft after saving
-                this.saveDraftsToStorage();
+                delete this.snippets[snippetIndex].draft; // Remove draft after saving
                 this.saveToStorage();
                 this.hasUnsavedChanges = false;
                 this.isDraftVersion = false;
@@ -191,8 +172,8 @@ export class SnippetManager {
                 if (confirm('Editing the saved version will overwrite your draft. Continue?')) {
                     this.readOnlyMode = false;
                     this.isDraftVersion = true;
-                    this.drafts.delete(this.currentSnippetId);
-                    this.saveDraftsToStorage();
+                    delete this.snippets.find(s => s.id === this.currentSnippetId).draft;
+                    this.saveToStorage();
                     this.updateVersionSwitch();
                     this.renderSnippetList();
                 } else {
