@@ -17,6 +17,27 @@ require(['vs/editor/editor.main'], async function () {
         formatOnType: true
     });
 
+    // Fetch JSON schemas
+    const vegaSchema = await fetch('https://vega.github.io/schema/vega/v5.json').then(response => response.json());
+    const vegaLiteSchema = await fetch('https://vega.github.io/schema/vega-lite/v5.json').then(response => response.json());
+
+    // Configure JSON schema
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+        validate: true,
+        schemas: [
+            {
+                uri: "https://vega.github.io/schema/vega/v5.json",
+                fileMatch: ["*"],
+                schema: vegaSchema
+            },
+            {
+                uri: "https://vega.github.io/schema/vega-lite/v5.json",
+                fileMatch: ["*"],
+                schema: vegaLiteSchema
+            }
+        ]
+    });
+
     const resizer = new PanelResizer(snippetManager);
     window.editor = editor;
 
