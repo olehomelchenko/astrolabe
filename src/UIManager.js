@@ -37,6 +37,9 @@ export class UIManager {
         const container = document.getElementById('snippet-list');
         container.innerHTML = '';
 
+        // Sort snippets by creation date (most recent first)
+        snippets.sort((a, b) => b.createdAt - a.createdAt);
+
         snippets.forEach(snippet => {
             const div = document.createElement('div');
             div.className = `snippet-item ${snippet.id === currentSnippetId ? 'active' : ''}`;
@@ -48,6 +51,7 @@ export class UIManager {
             const contentDiv = document.createElement('div');
             contentDiv.className = 'snippet-content';
             contentDiv.textContent = `${indicator} ${snippet.name}`;
+            contentDiv.title = `Created at: ${new Date(snippet.createdAt).toLocaleString()}`;
             div.appendChild(contentDiv);
 
             const buttonsDiv = document.createElement('div');

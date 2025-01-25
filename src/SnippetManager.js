@@ -62,6 +62,7 @@ export class SnippetManager {
         const newSnippet = {
             id,
             name,
+            createdAt: Date.now(),
             content: {
                 "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
                 "description": "New visualization",
@@ -176,7 +177,8 @@ export class SnippetManager {
         const storedSnippets = this.storageManager.loadSnippets();
         return storedSnippets.map(snippet => ({
             ...snippet,
-            comment: snippet.comment || ''
+            comment: snippet.comment || '',
+            createdAt: snippet.createdAt || Date.now() // Ensure backwards compatibility
         }));
     }
 
