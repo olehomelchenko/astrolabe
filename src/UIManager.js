@@ -60,6 +60,11 @@ export class UIManager {
                 e.stopPropagation();
                 this.snippetManager.deleteSnippet(snippet.id);
             }));
+
+            buttonsDiv.appendChild(this.createButton('📄', 'duplicate-snippet', (e) => {
+                e.stopPropagation();
+                this.snippetManager.duplicateSnippet(snippet.id);
+            }));
             
             div.appendChild(buttonsDiv);
             container.appendChild(div);

@@ -157,6 +157,21 @@ export class SnippetManager {
         }
     }
 
+    duplicateSnippet(id) {
+        const snippet = this.snippets.find(s => s.id === id);
+        if (!snippet) return;
+
+        const newSnippet = {
+            ...snippet,
+            id: 'snippet-' + Date.now(),
+            name: snippet.name + ' (Copy)'
+        };
+
+        this.snippets.push(newSnippet);
+        this.saveSnippetsAndUpdateUI();
+        this.loadSnippet(newSnippet.id);
+    }
+
     saveSnippetsAndUpdateUI() {
         this.storageManager.saveSnippets(this.snippets);
         this.updateUI();
