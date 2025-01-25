@@ -2,6 +2,7 @@ export class UIManager {
     constructor(snippetManager) {
         this.snippetManager = snippetManager;
         this.setupEventListeners();
+        this.setupSearchInput();
     }
 
     setupEventListeners() {
@@ -146,5 +147,26 @@ export class UIManager {
         versionSwitch.textContent = isDraftVersion ?
             'View Saved' :
             'View Draft';
+    }
+
+    setupSearchInput() {
+        const searchInput = document.getElementById('snippet-search');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            let filteredSnippets;
+            try {
+                const regex = new RegExp(query, 'i');
+                filteredSnippets = this.snippetManager.snippets.filter(snippet => {
+                    const snippetText = JSON.stringify(snippet);
+                    return regex.test(snippetText);
+                });
+            } catch (err) {
+                filteredSnippets = this.snippetManager.snippets.filter(snippet => {
+                    const snippetText = JSON.stringify(snippet).toLowerCase();
+                    return snippetText.includes(query.toLowerCase());
+                });
+            }
+            this.renderSnippetList(filteredSnippets, this.snippetManager.currentSnippetId);
+        });
     }
 }

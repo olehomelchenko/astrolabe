@@ -325,3 +325,12 @@
 .snippet-item:hover .comment-snippet {
     opacity: 0.8;
 }
+
+.snippet-search {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 1rem;
+}
