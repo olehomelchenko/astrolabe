@@ -5,16 +5,22 @@ export class UIManager {
     }
 
     setupEventListeners() {
-        document.getElementById('new-snippet').onclick = () => this.snippetManager.createNewSnippet();
-        document.getElementById('save-snippet').onclick = () => this.snippetManager.saveCurrentSnippet();
-        document.getElementById('version-switch').onclick = () => {
+        this.setupEventListener('new-snippet', 'onclick', () => this.snippetManager.createNewSnippet());
+        this.setupEventListener('save-snippet', 'onclick', () => this.snippetManager.saveCurrentSnippet());
+        this.setupEventListener('version-switch', 'onclick', () => {
             this.snippetManager.loadSnippet(this.snippetManager.currentSnippetId, !this.snippetManager.isDraftVersion);
-        };
-        document.getElementById('export-snippets').onclick = () => this.snippetManager.storageManager.exportSnippets();
-        document.getElementById('import-snippets').onclick = () => document.getElementById('import-file').click();
-        document.getElementById('import-file').onchange = (e) => this.handleImport(e);
-        document.getElementById('comment-modal-save').onclick = () => this.saveComment();
-        document.getElementById('comment-modal-background').onclick = () => this.closeCommentModal();
+        });
+        this.setupEventListener('export-snippets', 'onclick', () => this.snippetManager.storageManager.exportSnippets());
+        this.setupEventListener('import-snippets', 'onclick', () => document.getElementById('import-file').click());
+        this.setupEventListener('import-file', 'onchange', (e) => this.handleImport(e));
+        this.setupEventListener('comment-modal-background', 'onclick', () => this.closeCommentModal());
+    }
+
+    setupEventListener(elementId, event, handler) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element[event] = handler;
+        }
     }
 
     async handleImport(e) {
@@ -44,10 +50,10 @@ export class UIManager {
             const div = document.createElement('div');
             div.className = `snippet-item ${snippet.id === currentSnippetId ? 'active' : ''}`;
             div.onclick = () => this.snippetManager.loadSnippet(snippet.id);
-            
+
             const hasChanges = this.snippetManager.hasDraftChanges(snippet.id);
             const indicator = hasChanges ? '🟡' : '🟢';
-            
+
             const contentDiv = document.createElement('div');
             contentDiv.className = 'snippet-content';
             contentDiv.textContent = `${indicator} ${snippet.name}`;
@@ -71,14 +77,14 @@ export class UIManager {
                 this.snippetManager.renameSnippet(snippet.id);
             }));
 
-            buttonsDiv.appendChild(this.createButton('❌', 'delete-snippet', (e) => {
-                e.stopPropagation();
-                this.snippetManager.deleteSnippet(snippet.id);
-            }));
-
             buttonsDiv.appendChild(this.createButton('📄', 'duplicate-snippet', (e) => {
                 e.stopPropagation();
                 this.snippetManager.duplicateSnippet(snippet.id);
+            }));
+
+            buttonsDiv.appendChild(this.createButton('❌', 'delete-snippet', (e) => {
+                e.stopPropagation();
+                this.snippetManager.deleteSnippet(snippet.id);
             }));
 
             div.appendChild(buttonsDiv);
@@ -137,8 +143,8 @@ export class UIManager {
         if (!versionSwitch) return;
 
         versionSwitch.style.display = hasDraftChanges ? 'block' : 'none';
-        versionSwitch.textContent = isDraftVersion ? 
-            'View Saved' : 
+        versionSwitch.textContent = isDraftVersion ?
+            'View Saved' :
             'View Draft';
     }
 }
