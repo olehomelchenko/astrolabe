@@ -77,40 +77,43 @@ export class SnippetManager {
     saveDraft() {
         if (!this.currentSnippetId) return;
 
-        try {
-            const content = JSON.parse(this.editorManager.getValue());
-            const snippetIndex = this.snippets.findIndex(s => s.id === this.currentSnippetId);
-            
-            if (snippetIndex !== -1) {
-                const currentSnippet = this.snippets[snippetIndex];
-                if (JSON.stringify(content) !== JSON.stringify(currentSnippet.content)) {
-                    this.snippets[snippetIndex].draft = content;
-                    this.isDraftVersion = true;
-                    this.saveSnippetsAndUpdateUI();
-                    this.visualizationManager.updateVisualization(content);
-                }
+        const content = this.parseEditorContent();
+        if (!content) return;
+
+        const snippetIndex = this.snippets.findIndex(s => s.id === this.currentSnippetId);
+        if (snippetIndex !== -1) {
+            const currentSnippet = this.snippets[snippetIndex];
+            if (JSON.stringify(content) !== JSON.stringify(currentSnippet.content)) {
+                this.snippets[snippetIndex].draft = content;
+                this.isDraftVersion = true;
+                this.saveSnippetsAndUpdateUI();
+                this.visualizationManager.updateVisualization(content);
             }
-        } catch (e) {
-            console.error('Invalid JSON in editor');
         }
     }
 
     saveCurrentSnippet() {
         if (!this.currentSnippetId) return;
 
-        try {
-            const content = JSON.parse(this.editorManager.getValue());
-            const snippetIndex = this.snippets.findIndex(s => s.id === this.currentSnippetId);
+        const content = this.parseEditorContent();
+        if (!content) return;
 
-            if (snippetIndex !== -1) {
-                this.snippets[snippetIndex].content = content;
-                delete this.snippets[snippetIndex].draft;
-                this.hasUnsavedChanges = false;
-                this.isDraftVersion = false;
-                this.saveSnippetsAndUpdateUI();
-            }
+        const snippetIndex = this.snippets.findIndex(s => s.id === this.currentSnippetId);
+        if (snippetIndex !== -1) {
+            this.snippets[snippetIndex].content = content;
+            delete this.snippets[snippetIndex].draft;
+            this.hasUnsavedChanges = false;
+            this.isDraftVersion = false;
+            this.saveSnippetsAndUpdateUI();
+        }
+    }
+
+    parseEditorContent() {
+        try {
+            return JSON.parse(this.editorManager.getValue());
         } catch (e) {
-            alert('Invalid JSON in editor');
+            console.error('Invalid JSON in editor');
+            return null;
         }
     }
 

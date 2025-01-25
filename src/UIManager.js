@@ -51,27 +51,27 @@ export class UIManager {
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'snippet-buttons';
 
-            const editButton = document.createElement('button');
-            editButton.className = 'edit-snippet';
-            editButton.innerHTML = '✏️';
-            editButton.onclick = (e) => {
+            buttonsDiv.appendChild(this.createButton('✏️', 'edit-snippet', (e) => {
                 e.stopPropagation();
                 this.snippetManager.renameSnippet(snippet.id);
-            };
-            buttonsDiv.appendChild(editButton);
+            }));
 
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-snippet';
-            deleteButton.innerHTML = '❌';
-            deleteButton.onclick = (e) => {
+            buttonsDiv.appendChild(this.createButton('❌', 'delete-snippet', (e) => {
                 e.stopPropagation();
                 this.snippetManager.deleteSnippet(snippet.id);
-            };
-            buttonsDiv.appendChild(deleteButton);
+            }));
             
             div.appendChild(buttonsDiv);
             container.appendChild(div);
         });
+    }
+
+    createButton(innerHTML, className, onClick) {
+        const button = document.createElement('button');
+        button.className = className;
+        button.innerHTML = innerHTML;
+        button.onclick = onClick;
+        return button;
     }
 
     updateSaveButton(hasUnsavedChanges) {
