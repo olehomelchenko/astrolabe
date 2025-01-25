@@ -14,7 +14,8 @@ export class UIManager {
         this.setupEventListener('export-snippets', 'onclick', () => this.snippetManager.storageManager.exportSnippets());
         this.setupEventListener('import-snippets', 'onclick', () => document.getElementById('import-file').click());
         this.setupEventListener('import-file', 'onchange', (e) => this.handleImport(e));
-        this.setupEventListener('comment-modal-background', 'onclick', () => this.closeCommentModal());
+        this.setupEventListener('comment-modal-background', 'onclick', () => this.saveComment());
+        this.setupEventListener('save-comment', 'onclick', () => this.saveComment());
     }
 
     setupEventListener(elementId, event, handler) {
@@ -105,18 +106,19 @@ export class UIManager {
         const snippet = this.snippetManager.snippets.find(s => s.id === snippetId);
         if (!snippet) return;
 
-        const commentTextarea = document.getElementById('comment-textarea');
-        commentTextarea.value = snippet.comment || '';
+        const commentEditor = window.commentEditor;
+        commentEditor.setValue(snippet.comment || '');
         document.getElementById('comment-modal').style.display = 'block';
         document.getElementById('comment-modal-background').style.display = 'block';
+        document.getElementById('comment-modal-title').textContent = `Edit comment for snippet: ${snippet.name}`;
         this.currentCommentSnippetId = snippetId;
     }
 
     saveComment() {
-        const commentTextarea = document.getElementById('comment-textarea');
+        const commentEditor = window.commentEditor;
         const snippet = this.snippetManager.snippets.find(s => s.id === this.currentCommentSnippetId);
         if (snippet) {
-            snippet.comment = commentTextarea.value;
+            snippet.comment = commentEditor.getValue();
             this.snippetManager.saveSnippetsAndUpdateUI();
         }
         document.getElementById('comment-modal').style.display = 'none';

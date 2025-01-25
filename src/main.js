@@ -17,6 +17,17 @@ require(['vs/editor/editor.main'], async function () {
         formatOnType: true
     });
 
+    // Initialize Monaco editor for comment modal
+    window.commentEditor = monaco.editor.create(document.getElementById('comment-editor'), {
+        language: 'markdown',
+        theme: 'vs-light',
+        wordWrap: 'on',
+        minimap: { enabled: false },
+        automaticLayout: true,
+        formatOnPaste: true,
+        formatOnType: true
+    });
+
     // Fetch JSON schemas
     const vegaSchema = await fetch('https://vega.github.io/schema/vega/v5.json').then(response => response.json());
     const vegaLiteSchema = await fetch('https://vega.github.io/schema/vega-lite/v5.json').then(response => response.json());
