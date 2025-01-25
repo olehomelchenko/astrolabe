@@ -210,63 +210,49 @@
     white-space: nowrap;
 }
 
-.delete-snippet {
-    opacity: 0.4;
+.delete-snippet,
+.edit-snippet,
+.duplicate-snippet,
+.comment-snippet {
+    opacity: 0.2;
     font-size: 14px;
     padding: 2px 4px;
     background: none;
     border: none;
     cursor: pointer;
     min-width: 24px;
+    transition: opacity 0.2s;
 }
 
-.delete-snippet:hover {
+.snippet-item:hover .delete-snippet,
+.snippet-item:hover .edit-snippet,
+.snippet-item:hover .duplicate-snippet,
+.snippet-item:hover .comment-snippet {
+    opacity: 0.6;
+}
+
+.snippet-item.active .delete-snippet,
+.snippet-item.active .edit-snippet,
+.snippet-item.active .duplicate-snippet,
+.snippet-item.active .comment-snippet {
     opacity: 1;
 }
 
-.snippet-item:hover .delete-snippet {
-    opacity: 0.8;
+.comment-snippet.has-comment {
+    opacity: 0.4;
+}
+
+.snippet-item:hover .comment-snippet.has-comment {
+    opacity: 0.6;
+}
+
+.snippet-item.active .comment-snippet.has-comment {
+    opacity: 1;
 }
 
 .snippet-buttons {
     display: flex;
     gap: 4px;
-}
-
-.edit-snippet {
-    opacity: 0.4;
-    font-size: 14px;
-    padding: 2px 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    min-width: 24px;
-}
-
-.edit-snippet:hover {
-    opacity: 1;
-}
-
-.snippet-item:hover .edit-snippet {
-    opacity: 0.8;
-}
-
-.duplicate-snippet {
-    opacity: 0.4;
-    font-size: 14px;
-    padding: 2px 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    min-width: 24px;
-}
-
-.duplicate-snippet:hover {
-    opacity: 1;
-}
-
-.snippet-item:hover .duplicate-snippet {
-    opacity: 0.8;
 }
 
 .comment-modal {
@@ -308,16 +294,27 @@
 }
 
 .comment-snippet {
-    opacity: 0.4;
+    opacity: 0;
     font-size: 14px;
     padding: 2px 4px;
     background: none;
     border: none;
     cursor: pointer;
     min-width: 24px;
+    transition: opacity 0.2s;
 }
 
 .comment-snippet.has-comment {
+    opacity: 0.4;
+}
+
+.snippet-item:hover .comment-snippet,
+.snippet-item.active .comment-snippet {
+    opacity: 0.4;
+}
+
+.snippet-item:hover .comment-snippet.has-comment,
+.snippet-item.active .comment-snippet.has-comment {
     opacity: 1;
 }
 

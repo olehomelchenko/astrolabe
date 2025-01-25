@@ -57,6 +57,15 @@ export class UIManager {
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'snippet-buttons';
 
+            const commentButton = this.createButton('💬', 'comment-snippet', (e) => {
+                e.stopPropagation();
+                this.openCommentModal(snippet.id);
+            });
+            if (snippet.comment && snippet.comment.trim() !== '') {
+                commentButton.classList.add('has-comment');
+            }
+            buttonsDiv.appendChild(commentButton);
+
             buttonsDiv.appendChild(this.createButton('✏️', 'edit-snippet', (e) => {
                 e.stopPropagation();
                 this.snippetManager.renameSnippet(snippet.id);
@@ -72,15 +81,6 @@ export class UIManager {
                 this.snippetManager.duplicateSnippet(snippet.id);
             }));
 
-            const commentButton = this.createButton('💬', 'comment-snippet', (e) => {
-                e.stopPropagation();
-                this.openCommentModal(snippet.id);
-            });
-            if (snippet.comment && snippet.comment.trim() !== '') {
-                commentButton.classList.add('has-comment');
-            }
-            buttonsDiv.appendChild(commentButton);
-            
             div.appendChild(buttonsDiv);
             container.appendChild(div);
         });
