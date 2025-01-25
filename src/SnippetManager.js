@@ -15,7 +15,7 @@ export class SnippetManager {
         this.isDraftVersion = false;
         this.readOnlyMode = false;
 
-        this.snippets = this.storageManager.loadSnippets();
+        this.snippets = this.loadSnippets();
         this.uiManager.renderSnippetList(this.snippets, this.currentSnippetId);
     }
 
@@ -170,6 +170,14 @@ export class SnippetManager {
         this.snippets.push(newSnippet);
         this.saveSnippetsAndUpdateUI();
         this.loadSnippet(newSnippet.id);
+    }
+
+    loadSnippets() {
+        const storedSnippets = this.storageManager.loadSnippets();
+        return storedSnippets.map(snippet => ({
+            ...snippet,
+            comment: snippet.comment || ''
+        }));
     }
 
     saveSnippetsAndUpdateUI() {

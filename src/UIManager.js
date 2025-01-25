@@ -13,6 +13,8 @@ export class UIManager {
         document.getElementById('export-snippets').onclick = () => this.snippetManager.storageManager.exportSnippets();
         document.getElementById('import-snippets').onclick = () => document.getElementById('import-file').click();
         document.getElementById('import-file').onchange = (e) => this.handleImport(e);
+        document.getElementById('comment-modal-save').onclick = () => this.saveComment();
+        document.getElementById('comment-modal-background').onclick = () => this.closeCommentModal();
     }
 
     async handleImport(e) {
@@ -65,6 +67,15 @@ export class UIManager {
                 e.stopPropagation();
                 this.snippetManager.duplicateSnippet(snippet.id);
             }));
+
+            const commentButton = this.createButton('💬', 'comment-snippet', (e) => {
+                e.stopPropagation();
+                this.openCommentModal(snippet.id);
+            });
+            if (snippet.comment && snippet.comment.trim() !== '') {
+                commentButton.classList.add('has-comment');
+            }
+            buttonsDiv.appendChild(commentButton);
             
             div.appendChild(buttonsDiv);
             container.appendChild(div);
@@ -77,6 +88,39 @@ export class UIManager {
         button.innerHTML = innerHTML;
         button.onclick = onClick;
         return button;
+    }
+
+    openCommentModal(snippetId) {
+        const snippet = this.snippetManager.snippets.find(s => s.id === snippetId);
+        if (!snippet) return;
+
+        const commentTextarea = document.getElementById('comment-textarea');
+        commentTextarea.value = snippet.comment || '';
+        document.getElementById('comment-modal').style.display = 'block';
+        document.getElementById('comment-modal-background').style.display = 'block';
+        this.currentCommentSnippetId = snippetId;
+    }
+
+    saveComment() {
+        const commentTextarea = document.getElementById('comment-textarea');
+        const snippet = this.snippetManager.snippets.find(s => s.id === this.currentCommentSnippetId);
+        if (snippet) {
+            snippet.comment = commentTextarea.value;
+            this.snippetManager.saveSnippetsAndUpdateUI();
+        }
+        document.getElementById('comment-modal').style.display = 'none';
+        document.getElementById('comment-modal-background').style.display = 'none';
+    }
+
+    closeCommentModal() {
+        const commentTextarea = document.getElementById('comment-textarea');
+        const snippet = this.snippetManager.snippets.find(s => s.id === this.currentCommentSnippetId);
+        if (snippet) {
+            snippet.comment = commentTextarea.value;
+            this.snippetManager.saveSnippetsAndUpdateUI();
+        }
+        document.getElementById('comment-modal').style.display = 'none';
+        document.getElementById('comment-modal-background').style.display = 'none';
     }
 
     updateSaveButton(hasUnsavedChanges) {
