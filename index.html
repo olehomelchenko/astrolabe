@@ -23,14 +23,17 @@
 <body>
     <div class="container">
         <header class="app-header">
-            <a href="/">
-                <img src="src/astrolabe.svg" alt="Astrolabe logo">
-                <h1>Astrolabe</h1>
-            </a>
+            <div class="header-left">
+                <a href="/">
+                    <img src="src/astrolabe.svg" alt="Astrolabe logo">
+                    <h1>Astrolabe</h1>
+                </a>
+            </div>
             <div class="header-controls">
                 <button class="button mini" id="export-snippets">Export</button>
                 <button class="button mini" id="import-snippets">Import</button>
                 <input type="file" id="import-file" accept=".json" style="display: none">
+                <a href="/about.html" class="about-link">About</a>
             </div>
         </header>
         <div class="panel">
